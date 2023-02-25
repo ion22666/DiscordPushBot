@@ -1,4 +1,5 @@
 const http = require("http");
+const crypto = require("crypto");
 const { Client, Events, GatewayIntentBits, EmbedBuilder } = require("discord.js");
 const { default: axios } = require("axios");
 require("dotenv").config();
@@ -18,7 +19,18 @@ const server = http.createServer((req, res) => {
         body += chunk;
     });
     req.on("end", async () => {
+        const signature = req.headers["X-Hub-Signature"];
+
+        if (!signature) return res.status(400).send("No signature found in the request");
+
+        const sha1 = crypto.createHmac("sha1", secret);
+        const payload = JSON.stringify(req.body);
+        const computedSignature = "sha1=" + sha1.update(payload).digest("hex");
+
+        if (computedSignature !== signature) return res.status(401).send("Invalid signature");
+
         const { repository, pusher, compare, head_commit } = JSON.parse(body);
+
         let diff_raw_text = (await axios(compare + ".diff")).data;
         let formattedDate = new Date(head_commit.timestamp).toLocaleString("ro-RO", {
             year: "numeric",
