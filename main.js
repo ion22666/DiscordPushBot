@@ -4,6 +4,7 @@ const { default: axios } = require("axios");
 require("dotenv").config();
 
 const client = new Client({ intents: [GatewayIntentBits.Guilds] });
+const channel = client.channels.cache.get(process.env.CHANNEL_ID);
 
 client.once(Events.ClientReady, c => {
     console.log(`Ready! Logged in as ${c.user.tag}`);
@@ -19,8 +20,6 @@ const server = http.createServer((req, res) => {
     req.on("end", async () => {
         const { repository, pusher, compare, head_commit } = JSON.parse(body);
         let diff_raw_text = (await axios(compare + ".diff")).data;
-        let i = diff_raw_text.indexOf("@");
-        let [first, second] = [diff_raw_text.substring(0, i), diff_raw_text.substring(i)];
         let formattedDate = new Date(head_commit.timestamp).toLocaleString("ro-RO", {
             year: "numeric",
             month: "long",
@@ -32,9 +31,23 @@ const server = http.createServer((req, res) => {
         });
 
         const final_message =
-            "```js\n" + `// push in ${repository.name} //\npusher: '${pusher.name}'\nmessage: '${head_commit.message}'\ndate: '${formattedDate}'\nmodified: [ '${head_commit.modified.join("', '")}' ]` + "```" + "```diff\n" + diff_raw_text + "```";
+            "```js\n" +
+            `// push in ${repository.name} //\n` +
+            `pusher: '${pusher.name + (pusher.name != head_commit.author.name ? ` (aka. ${head_commit.author.name})` : "")}' \n` +
+            `message: '${head_commit.message}'\n` +
+            `date: '${formattedDate}'\n` +
+            `added: [ '${head_commit.added.join("', '")}' ]\n` +
+            `removed:[ '${head_commit.removed.join("', '")}' ]` +
+            `modified: [ '${head_commit.modified.join("', '")}' ]\n` +
+            `url: '${head_commit.url}'` +
+            "```";
 
-        const channel = client.channels.cache.get(process.env.CHANNEL_ID);
+        if (final_message.length + diff_raw_text > 2000) {
+            final_message += "```diff\n" + "too much code has been edited, it doesn't fit here :(" + "```";
+        } else {
+            final_message += "```diff\n" + diff_raw_text + "```";
+        }
+
         if (channel) {
             channel.send(final_message);
             res.end("Message sent to Discord server");
