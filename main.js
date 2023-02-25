@@ -21,10 +21,16 @@ const server = http.createServer((req, res) => {
     });
     req.on("end", async () => {
         const signature = req.headers["X-Hub-Signature"];
-        const event = req.headers["X-Github-Event: ping"];
+        const event = req.headers["X-Github-Event"];
 
-        if (event != "push") return res.end("Event not supported");
-        if (!signature) return res.end("No signature found in the request");
+        if (event != "push") {
+            res.statusCode(401);
+            return res.end("Event not supported");
+        }
+        if (!signature) {
+            res.statusCode(401);
+            return res.end("No signature found in the request");
+        }
 
         const sha1 = crypto.createHmac("sha1", secret);
         const payload = JSON.stringify(req.body);
@@ -65,8 +71,10 @@ const server = http.createServer((req, res) => {
 
         if (channel) {
             channel.send(final_message);
+            res.statusCode(200);
             res.end("Message sent to Discord server");
         } else {
+            res.statusCode(404);
             res.end("Error: could not find channel");
         }
     });
