@@ -6,6 +6,7 @@ require("dotenv").config();
 
 const client = new Client({ intents: [GatewayIntentBits.Guilds] });
 const channel = client.channels.cache.get(process.env.CHANNEL_ID);
+const secret = process.env.WEBHOOK_SECRET;
 
 client.once(Events.ClientReady, c => {
     console.log(`Ready! Logged in as ${c.user.tag}`);
@@ -20,7 +21,9 @@ const server = http.createServer((req, res) => {
     });
     req.on("end", async () => {
         const signature = req.headers["X-Hub-Signature"];
+        const event = req.headers["X-Github-Event: ping"];
 
+        if (event != "push") return res.status(400).send("Event not supported");
         if (!signature) return res.status(400).send("No signature found in the request");
 
         const sha1 = crypto.createHmac("sha1", secret);
