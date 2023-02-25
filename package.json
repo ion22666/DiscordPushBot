@@ -1,0 +1,25 @@
+{
+    "dependencies": {
+        "discord.js": "^14.7.1",
+        "dotenv": "^16.0.3"
+    },
+    "name": "discordpushbot",
+    "description": "The project will be a webhook that receives data from GitHub's API when a push is made to a remote repository. The webhook will then use the Discord API to send a message to a specified channel in a Discord server. The message will be formatted to include information about the push, such as the branch that was pushed, the commit message, and the name of the person who made the push.",
+    "version": "1.0.0",
+    "main": "main.js",
+    "scripts": {
+        "test": "echo \"Error: no test specified\" && exit 1"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/ion22666/DiscordPushBot.git"
+    },
+    "keywords": [],
+    "author": "",
+    "license": "ISC",
+    "bugs": {
+        "url": "https://github.com/ion22666/DiscordPushBot/issues"
+    },
+    "homepage": "https://github.com/ion22666/DiscordPushBot#readme",
+    "module": "commonjs"
+}
