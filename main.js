@@ -5,8 +5,6 @@ const { default: axios } = require("axios");
 require("dotenv").config();
 
 const client = new Client({ intents: [GatewayIntentBits.Guilds] });
-const channel = client.channels.cache.get(process.env.CHANNEL_ID);
-const secret = process.env.WEBHOOK_SECRET;
 
 client.once(Events.ClientReady, c => {
     console.log(`Ready! Logged in as ${c.user.tag}`);
@@ -20,26 +18,29 @@ const server = http.createServer((req, res) => {
         body += chunk;
     });
     req.on("end", async () => {
-        const signature = req.headers["X-Hub-Signature"];
-        const event = req.headers["X-Github-Event"];
+        const signature = req.headers["x-hub-signature-256"];
+        const event = req.headers["x-github-event"];
+        const channel = client.channels.cache.get(process.env.CHANNEL_ID);
 
         if (event != "push") {
-            res.statusCode(401);
+            res.writeHead(401, { "Content-Type": "text/plain" });
             return res.end("Event not supported");
         }
         if (!signature) {
-            res.statusCode(401);
+            res.writeHead(401, { "Content-Type": "text/plain" });
             return res.end("No signature found in the request");
         }
 
-        const sha1 = crypto.createHmac("sha1", secret);
-        const payload = JSON.stringify(req.body);
-        const computedSignature = "sha1=" + sha1.update(payload).digest("hex");
-
-        if (computedSignature !== signature) return res.end("Invalid signature");
-
+        if (!body) {
+            res.writeHead(401, { "Content-Type": "text/plain" });
+            return res.end("Invalid request");
+        }
         const { repository, pusher, compare, head_commit } = JSON.parse(body);
 
+        if (!repository || !pusher || !compare || !head_commit) {
+            res.writeHead(401, { "Content-Type": "text/plain" });
+            return res.end("Invalid request");
+        }
         let diff_raw_text = (await axios(compare + ".diff")).data;
         let formattedDate = new Date(head_commit.timestamp).toLocaleString("ro-RO", {
             year: "numeric",
@@ -51,7 +52,7 @@ const server = http.createServer((req, res) => {
             timeZone: "Europe/Bucharest",
         });
 
-        const final_message =
+        let final_message =
             "```js\n" +
             `// push in ${repository.name} //\n` +
             `pusher: '${pusher.name + (pusher.name != head_commit.author.name ? ` (aka. ${head_commit.author.name})` : "")}' \n` +
@@ -71,18 +72,18 @@ const server = http.createServer((req, res) => {
 
         if (channel) {
             channel.send(final_message);
-            res.statusCode(200);
+            res.writeHead(401, { "Content-Type": "text/plain" });
             res.end("Message sent to Discord server");
         } else {
-            res.statusCode(404);
+            res.writeHead(404, { "Content-Type": "text/plain" });
             res.end("Error: could not find channel");
         }
     });
 });
 
-client.on("ready", () => {
-    console.log("Logged in to Discord server");
-    server.listen(8000, "0.0.0.0", () => {
-        console.log("Server is listening on port 8000");
+server.listen(8000, "0.0.0.0", () => {
+    console.log("Server is listening on port 8000");
+    client.on("ready", () => {
+        console.log("Logged in to Discord server");
     });
 });
