@@ -1,4 +1,4 @@
-const http = require("node:http");
+const http = require("http");
 
 require("dotenv").config();
 const { Client, Events, GatewayIntentBits } = require("discord.js");
