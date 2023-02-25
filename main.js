@@ -17,7 +17,13 @@ const server = http.createServer((req, res) => {
         body += chunk;
     });
     req.on("end", async () => {
-        const { repository, pusher, compare, head_commit } = body;
+        const signature = req.headers["x-hub-signature"];
+        const event = req.headers["x-github-event"];
+
+        console.log(signature, event);
+        // if (signature != process.env.WEBHOOK_SECRET || event.toLocaleLowerCase() != "push") return;
+
+        const { repository, pusher, compare, head_commit } = JSON.parse(body);
         let diff_raw_text = (await axios(compare + ".diff")).data;
         let i = diff_raw_text.indexOf("@");
         let [first, second] = [diff_raw_text.substring(0, i), diff_raw_text.substring(i)];
