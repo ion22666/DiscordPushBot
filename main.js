@@ -19,7 +19,7 @@ const server = http.createServer((req, res) => {
     req.on("end", () => {
         const channel = client.channels.cache.get(process.env.CHANNEL_ID);
         if (channel) {
-            channel.send("Salut " + body);
+            channel.send("Salut 1" + body);
             res.end("Message sent to Discord server");
         } else {
             res.end("Error: could not find channel");
