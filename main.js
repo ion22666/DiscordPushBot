@@ -17,12 +17,6 @@ const server = http.createServer((req, res) => {
         body += chunk;
     });
     req.on("end", async () => {
-        const signature = req.headers["x-hub-signature"];
-        const event = req.headers["x-github-event"];
-
-        console.log(signature, event);
-        // if (signature != process.env.WEBHOOK_SECRET || event.toLocaleLowerCase() != "push") return;
-
         const { repository, pusher, compare, head_commit } = JSON.parse(body);
         let diff_raw_text = (await axios(compare + ".diff")).data;
         let i = diff_raw_text.indexOf("@");
@@ -38,7 +32,7 @@ const server = http.createServer((req, res) => {
         });
 
         const final_message =
-            "```js\n" + `// PUSH IN ${repository.name} //\n\npusher: '${pusher.name}'\nmessage: '${head_commit.message}'\ndate: '${formattedDate}'\nmodified: [ '${head_commit.modified.join("', '")}' ]` + "```" + "```diff\n" + first + "\n" + second + "```";
+            "```js\n" + `// push in ${repository.name} //\npusher: '${pusher.name}'\nmessage: '${head_commit.message}'\ndate: '${formattedDate}'\nmodified: [ '${head_commit.modified.join("', '")}' ]` + "```" + "```diff\n" + diff_raw_text + "```";
 
         const channel = client.channels.cache.get(process.env.CHANNEL_ID);
         if (channel) {
