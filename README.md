@@ -1,4 +1,4 @@
-# DiscordPushBot 1
+# DiscordPushBot 3
 
 The project will be a webhook that receives data from GitHub's API when a push is made to a remote repository. The webhook will then use the Discord API to send a message to a specified channel in a Discord server. The message will be formatted to include information about the push, such as the branch that was pushed, the commit message, and the name of the person who made the push.  
 
