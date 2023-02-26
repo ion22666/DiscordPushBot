@@ -58,9 +58,9 @@ const server = http.createServer((req, res) => {
             `pusher: '${pusher.name + (pusher.name != head_commit.author.name ? ` (aka. ${head_commit.author.name})` : "")}' \n` +
             `message: '${head_commit.message}'\n` +
             `date: '${formattedDate}'\n` +
-            `added: [ ${head_commit.added.map(e => `'${e}'`).join(", ")} ]\n` +
-            `removed:[ ${head_commit.removed.map(e => `'${e}'`).join(", ")} ]\n` +
-            `modified: ['${head_commit.modified.map(e => `'${e}'`).join(", ")} ]\n` +
+            `added: [${head_commit.added.map(e => `'${e}'`).join(", ")}]\n` +
+            `removed:[${head_commit.removed.map(e => `'${e}'`).join(", ")}]\n` +
+            `modified: [${head_commit.modified.map(e => `'${e}'`).join(", ")}]\n` +
             `url: '${head_commit.url}'` +
             "```";
 
