@@ -64,7 +64,7 @@ const server = http.createServer((req, res) => {
             `url: '${head_commit.url}'` +
             "```";
 
-        if (final_message.length + diff_raw_text > 2000) {
+        if (final_message.length + diff_raw_text.length > 2000) {
             final_message += "```diff\n" + "too much code has been edited, it doesn't fit here :(" + "```";
         } else {
             final_message += "```diff\n" + diff_raw_text + "```";
