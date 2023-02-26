@@ -23,22 +23,22 @@ const server = http.createServer((req, res) => {
         const channel = client.channels.cache.get(process.env.CHANNEL_ID);
 
         if (event != "push") {
-            res.writeHead(401, { "Content-Type": "text/plain" });
+            res.writeHead(200, { "Content-Type": "text/plain" });
             return res.end("Event not supported");
         }
         if (!signature) {
-            res.writeHead(401, { "Content-Type": "text/plain" });
+            res.writeHead(200, { "Content-Type": "text/plain" });
             return res.end("No signature found in the request");
         }
 
         if (!body) {
-            res.writeHead(401, { "Content-Type": "text/plain" });
+            res.writeHead(200, { "Content-Type": "text/plain" });
             return res.end("Invalid request");
         }
         const { repository, pusher, compare, head_commit } = JSON.parse(body);
 
         if (!repository || !pusher || !compare || !head_commit) {
-            res.writeHead(401, { "Content-Type": "text/plain" });
+            res.writeHead(200, { "Content-Type": "text/plain" });
             return res.end("Invalid request");
         }
         let diff_raw_text = (await axios(compare + ".diff")).data;
@@ -72,10 +72,10 @@ const server = http.createServer((req, res) => {
 
         if (channel) {
             channel.send(final_message);
-            res.writeHead(401, { "Content-Type": "text/plain" });
+            res.writeHead(200, { "Content-Type": "text/plain" });
             res.end("Message sent to Discord server");
         } else {
-            res.writeHead(404, { "Content-Type": "text/plain" });
+            res.writeHead(200, { "Content-Type": "text/plain" });
             res.end("Error: could not find channel");
         }
     });
