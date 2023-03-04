@@ -62,12 +62,12 @@ const server = http.createServer((req, res) => {
             `removed:[${head_commit.removed.map(e => `'${e}'`).join(", ")}]\n` +
             `modified: [${head_commit.modified.map(e => `'${e}'`).join(", ")}]\n` +
             `url: '${head_commit.url}'` +
-            "```";
+            "\n\n";
 
         if (final_message.length + diff_raw_text.length > 2000) {
-            final_message += "```diff\n" + "too much code has been edited, it doesn't fit here :(" + "```";
+            final_message += "diff\n" + "too much code has been edited, it doesn't fit here :(" + "```";
         } else {
-            final_message += "```diff\n" + diff_raw_text + "```";
+            final_message += "diff\n" + diff_raw_text + "```";
         }
 
         if (channel) {
