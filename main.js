@@ -53,7 +53,7 @@ const server = http.createServer((req, res) => {
         });
 
         let final_message =
-            "```js\n" +
+            "```diff\n" +
             `// push in ${repository.name} //\n` +
             `pusher: '${pusher.name + (pusher.name != head_commit.author.name ? ` (aka. ${head_commit.author.name})` : "")}' \n` +
             `message: '${head_commit.message}'\n` +
